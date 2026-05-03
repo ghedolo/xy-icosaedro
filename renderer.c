@@ -2,13 +2,13 @@
 #include <string.h>
 #include <stdbool.h>
 
-#define FLYBACK_STEPS  6
 #define DRAW_STEPS     2    // budget: 32 + 41*(6+20) + 60*2 = 32+1066+120 = 1218 < 1536
 
 #define Z_ON   0x80000000u
 #define Z_OFF  0x00000000u
 
-volatile int z_offset = 20;
+volatile int z_offset     = 20;
+volatile int flyback_steps = 6;
 
 static inline uint32_t pack_xy(int32_t x, int32_t y) {
     if (x >  32767) x =  32767; else if (x < -32767) x = -32767;
@@ -52,7 +52,9 @@ void renderer_render(frame_t *f,
         int32_t y1 = verts_2d[edges[e][1]][1];
 
         if (x0 != cx || y0 != cy) {
-            pos = write_segment(f, pos, cx, cy, x0, y0, FLYBACK_STEPS, false);
+            int fb = flyback_steps;
+            if (fb < 1) fb = 1; if (fb > 40) fb = 40;
+            pos = write_segment(f, pos, cx, cy, x0, y0, fb, false);
             pos = write_segment(f, pos, x0, y0, x0, y0, guard, false);
         }
 

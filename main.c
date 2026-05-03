@@ -30,11 +30,19 @@
 #define N_FACES 20
 #define N_VERTS (N_BASE + N_FACES)   // 32: 12 base + 20 punte
 #define N_EDGES (N_FACES * 3)         // 60 spigoli (3 per punta)
-#define SPIKE_SPEED 0.018f // periodo ~5.5 s a 62 Hz
+#define DEF_SCALE       20000.0f
+#define DEF_SPIKE_MAX   1.55f
+#define DEF_SPIKE_MIN   0.15f
+#define DEF_SPIKE_SPEED 0.018f
+#define DEF_ROT_SPEED   1.0f
+#define DEF_FLYBACK     6
+#define DEF_Z_OFFSET    20
 
-static float g_scale     = 20000.0f;
-static float g_spike_max = 1.55f;
-static float g_spike_min = 0.15f;
+static float g_scale       = DEF_SCALE;
+static float g_spike_max   = DEF_SPIKE_MAX;
+static float g_spike_min   = DEF_SPIKE_MIN;
+static float g_spike_speed = DEF_SPIKE_SPEED;
+static float g_rot_speed   = DEF_ROT_SPEED;
 
 // Vertici dell'icosaedro regolare (non normalizzati)
 static const float ico_base[N_BASE][3] = {
@@ -86,7 +94,7 @@ static void build_stellated(void) {
 }
 
 static void update_spikes(void) {
-    spike_t += SPIKE_SPEED;
+    spike_t += g_spike_speed;
     for (int f = 0; f < N_FACES; f++) {
         float s = g_spike_min + (g_spike_max - g_spike_min) *
                   (1.0f + sinf(spike_t + spike_phase[f])) * 0.5f;
@@ -104,10 +112,10 @@ static float rot_y = 0.0f;
 static float rot_x = 0.0f;
 static float rot_z = 0.0f;
 
-// Rapporti basati su PHI → mai periodici
-#define DELTA_Y  0.00360f
-#define DELTA_X  0.00222f   // DELTA_Y / PHI
-#define DELTA_Z  0.00137f   // DELTA_Y / PHI^2
+// Velocità base di rotazione (rad/frame); scalate da g_rot_speed
+#define BASE_DELTA_Y  0.00360f
+#define BASE_DELTA_X  0.00222f   // BASE_DELTA_Y / PHI
+#define BASE_DELTA_Z  0.00137f   // BASE_DELTA_Y / PHI^2
 
 static void project_vertices(void) {
     float cy = cosf(rot_y), sy = sinf(rot_y);
@@ -223,6 +231,19 @@ static void dma_init(void) {
 // main
 // ---------------------------------------------------------------------------
 
+static void print_help(void) {
+    printf("icosaedro stellato\n");
+    printf("  +/-   z_offset (%d, 0-60)\n",        z_offset);
+    printf("  a/z   scale    (%.0f, 2000-32000)\n", g_scale);
+    printf("  j/n   spike_max (%.2f, >spike_min+0.10)\n", g_spike_max);
+    printf("  k/m   spike_min (%.2f, 0.05-spike_max-0.10)\n", g_spike_min);
+    printf("  s/x   rot speed (%.2fx)\n",           g_rot_speed);
+    printf("  S/X   spike osc speed (%.4f)\n",      g_spike_speed);
+    printf("  d/c   flyback steps (%d, 1-40)\n",    flyback_steps);
+    printf("  r     reset defaults\n");
+    printf("  h     this help\n");
+}
+
 int main(void) {
     stdio_init_all();
     build_stellated();
@@ -240,53 +261,65 @@ int main(void) {
     dma_channel_start(Z_DMA);
     dma_channel_start(AUDIO_DMA);
 
-    printf("icosaedro stellato\n");
-    printf("  +/-  z_offset (%d)\n", z_offset);
-    printf("  a/z  scala (%.0f)\n", g_scale);
-    printf("  j/n  spike_max (%.2f)\n", g_spike_max);
-    printf("  k/m  spike_min (%.2f)\n", g_spike_min);
+    print_help();
 
     while (true) {
         int ch = getchar_timeout_us(0);
-        if (ch == '+' || ch == '=') {
+        bool changed = true;
+        if (ch == 'h') {
+            print_help();
+            changed = false;
+        } else if (ch == 'r') {
+            z_offset       = DEF_Z_OFFSET;
+            g_scale        = DEF_SCALE;
+            g_spike_max    = DEF_SPIKE_MAX;
+            g_spike_min    = DEF_SPIKE_MIN;
+            g_spike_speed  = DEF_SPIKE_SPEED;
+            g_rot_speed    = DEF_ROT_SPEED;
+            flyback_steps  = DEF_FLYBACK;
+            printf("reset\n");
+        } else if (ch == '+' || ch == '=') {
             if (z_offset < 60) z_offset++;
-            printf("z_offset=%d  scale=%.0f  spike_min=%.2f  spike_max=%.2f\n",
-                   z_offset, g_scale, g_spike_min, g_spike_max);
         } else if (ch == '-') {
-            if (z_offset > 0) z_offset--;
-            printf("z_offset=%d  scale=%.0f  spike_min=%.2f  spike_max=%.2f\n",
-                   z_offset, g_scale, g_spike_min, g_spike_max);
+            if (z_offset > 0)  z_offset--;
         } else if (ch == 'a') {
             if (g_scale < 32000.0f) g_scale += 500.0f;
-            printf("z_offset=%d  scale=%.0f  spike_min=%.2f  spike_max=%.2f\n",
-                   z_offset, g_scale, g_spike_min, g_spike_max);
         } else if (ch == 'z') {
-            if (g_scale > 2000.0f) g_scale -= 500.0f;
-            printf("z_offset=%d  scale=%.0f  spike_min=%.2f  spike_max=%.2f\n",
-                   z_offset, g_scale, g_spike_min, g_spike_max);
+            if (g_scale > 2000.0f)  g_scale -= 500.0f;
         } else if (ch == 'j') {
             if (g_spike_max < 2.50f) g_spike_max += 0.05f;
-            printf("z_offset=%d  scale=%.0f  spike_min=%.2f  spike_max=%.2f\n",
-                   z_offset, g_scale, g_spike_min, g_spike_max);
         } else if (ch == 'n') {
             if (g_spike_max > g_spike_min + 0.10f) g_spike_max -= 0.05f;
-            printf("z_offset=%d  scale=%.0f  spike_min=%.2f  spike_max=%.2f\n",
-                   z_offset, g_scale, g_spike_min, g_spike_max);
         } else if (ch == 'k') {
             if (g_spike_min < g_spike_max - 0.10f) g_spike_min += 0.05f;
-            printf("z_offset=%d  scale=%.0f  spike_min=%.2f  spike_max=%.2f\n",
-                   z_offset, g_scale, g_spike_min, g_spike_max);
         } else if (ch == 'm') {
             if (g_spike_min > 0.05f) g_spike_min -= 0.05f;
-            printf("z_offset=%d  scale=%.0f  spike_min=%.2f  spike_max=%.2f\n",
-                   z_offset, g_scale, g_spike_min, g_spike_max);
+        } else if (ch == 's') {
+            if (g_rot_speed < 5.0f) g_rot_speed += 0.1f;
+        } else if (ch == 'x') {
+            if (g_rot_speed > 0.1f) g_rot_speed -= 0.1f;
+        } else if (ch == 'S') {
+            if (g_spike_speed < 0.100f) g_spike_speed += 0.002f;
+        } else if (ch == 'X') {
+            if (g_spike_speed > 0.002f) g_spike_speed -= 0.002f;
+        } else if (ch == 'd') {
+            if (flyback_steps < 40) flyback_steps++;
+        } else if (ch == 'c') {
+            if (flyback_steps > 1)  flyback_steps--;
+        } else {
+            changed = false;
+        }
+        if (changed && ch != 'r') {
+            printf("z=%d  sc=%.0f  spk=%.2f/%.2f  rot=%.2fx  osc=%.4f  fb=%d\n",
+                   z_offset, g_scale, g_spike_min, g_spike_max,
+                   g_rot_speed, g_spike_speed, flyback_steps);
         }
 
         if (swap_pending) {
             swap_pending = false;
-            rot_y += DELTA_Y;
-            rot_x += DELTA_X;
-            rot_z += DELTA_Z;
+            rot_y += g_rot_speed * BASE_DELTA_Y;
+            rot_x += g_rot_speed * BASE_DELTA_X;
+            rot_z += g_rot_speed * BASE_DELTA_Z;
             update_spikes();
             project_vertices();
             int back = 1 - playing_buf;

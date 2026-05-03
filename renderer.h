@@ -9,8 +9,8 @@ typedef struct {
     uint32_t z[SAMPLES_PER_FRAME];   // un word per campione; bit 31 = fascio acceso
 } frame_t;
 
-// Parametro di allineamento Z/XY. Modificare via seriale con +/-.
 extern volatile int z_offset;
+extern volatile int flyback_steps;
 
 void renderer_render(frame_t *f,
                      const int16_t verts_2d[][2],
