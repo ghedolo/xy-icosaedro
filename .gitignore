@@ -1,0 +1,7 @@
+tmp/build/
+.venv/
+*.uf2
+*.elf
+*.bin
+*.map
+*.pdf

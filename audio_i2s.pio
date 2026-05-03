@@ -1,0 +1,67 @@
+; I2S stereo transmitter, 16-bit per channel.
+;
+; Pin mapping (set in C before starting the SM):
+;   out base    = GP0 (DIN)
+;   side-set[0] = GP1 (BCLK)
+;   side-set[1] = GP2 (LRCLK)
+;
+; FIFO word (32-bit autopull, shift-left):
+;   bits [31:16] = left channel  (X axis)
+;   bits [15:0]  = right channel (Y axis)
+;
+; LRCLK=0 -> left, LRCLK=1 -> right.
+; Data changes on BCLK falling edge; DAC latches on rising edge.
+; Left-justified mode (SF0 pin on UDA1334A tied to GND selects this format).
+;
+; Timing: 2 PIO cycles per bit (out + jmp/set).
+; 32 bits × 2 cycles = 64 cycles/sample.
+; For 96 kHz: PIO clock = 64 × 96000 = 6 144 000 Hz
+;             clkdiv = 125 000 000 / 6 144 000 ≈ 20.345
+;
+; Before enabling SM, call:
+;   pio_sm_exec(pio, sm, pio_encode_set(pio_x, 14));
+;
+; See also: zaxis program below for the Z-blanking state machine.
+
+.program audio_i2s
+.side_set 2
+; side 0bLB  — L = LRCLK (bit 1), B = BCLK (bit 0)
+
+.wrap_target
+
+; --- Left channel: LRCLK=0, 16 bits (bits 31..16 of OSR) ---
+left_loop:
+    out pins, 1        side 0b00   ; DIN=bit, BCLK falling
+    jmp x-- left_loop  side 0b01   ; BCLK rising; loop while x was non-zero
+
+; Falls through when x was 0 (16th bit). Transition LRCLK to 1.
+    out pins, 1        side 0b10   ; 16th left bit, BCLK falling, LRCLK->1
+    set x, 14          side 0b11   ; BCLK rising, reload x
+
+; --- Right channel: LRCLK=1, 16 bits (bits 15..0 of OSR) ---
+right_loop:
+    out pins, 1        side 0b10   ; DIN=bit, BCLK falling
+    jmp x-- right_loop side 0b11   ; BCLK rising; loop while x was non-zero
+
+; Falls through (16th right bit). Transition LRCLK to 0.
+    out pins, 1        side 0b00   ; 16th right bit, BCLK falling, LRCLK->0
+    set x, 14          side 0b01   ; BCLK rising, reload x for next frame
+
+.wrap
+
+; ---------------------------------------------------------------------------
+; Z-axis blanking output (state machine 1) — Z-primary architecture.
+;
+; One 32-bit DMA word per audio sample.  Bit 31 (MSB) = beam on/off.
+; The remaining 31 bits are discarded.  This guarantees that a DMA restart
+; can mis-align Z by at most 1 sample (10 µs at 96 kHz) instead of 31.
+;
+; Pin:    out base = Z_PIN (configured in C).
+; Timing: 2 PIO cycles per word → clkdiv = sys_clock / (2 × 96000) ≈ 651.
+
+.program zaxis
+
+.wrap_target
+    out pins, 1     ; output bit 31 (MSB) to Z_PIN
+    out null, 31    ; discard remaining 31 bits; autopull refills next word
+.wrap
