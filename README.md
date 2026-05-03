@@ -40,6 +40,14 @@ Defaults: z_offset=20, scale=20000, spike_min=0.15, spike_max=1.55, rot_speed=1.
 | `r` | Reset all to defaults | — |
 | `h` | Print help | — |
 
+### License and Credits
+
+**License:** GPL-3.0-or-later
+
+**Author:** ghedo (luca.ghedini@gmail.com) — 2026
+
+**Development Tool:** The project was constructed using Claude Code by Anthropic.
+
 ### Preview
 
 ![Stellated icosahedron preview](docs/preview.png)

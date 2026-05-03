@@ -233,7 +233,7 @@ static void dma_init(void) {
 // ---------------------------------------------------------------------------
 
 static void print_help(void) {
-    printf("icosaedro stellato\n");
+    printf("icosaedro stellato — ghedo 05/2026\n");
     printf("  +/-   z_offset (%d, 0-60)\n",        z_offset);
     printf("  a/z   scale    (%.0f, 2000-32000)\n", g_scale);
     printf("  j/n   spike_max (%.2f, >spike_min+0.10)\n", g_spike_max);
