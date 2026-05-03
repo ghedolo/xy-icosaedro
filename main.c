@@ -33,7 +33,8 @@
 #define DEF_SCALE       20000.0f
 #define DEF_SPIKE_MAX   1.55f
 #define DEF_SPIKE_MIN   0.15f
-#define DEF_SPIKE_SPEED 0.018f
+#define BASE_SPIKE_RATE 0.018f   // rate base (rad/frame) a moltiplicatore 1.0×
+#define DEF_SPIKE_SPEED 1.0f     // moltiplicatore default
 #define DEF_ROT_SPEED   1.0f
 #define DEF_FLYBACK     6
 #define DEF_Z_OFFSET    20
@@ -94,7 +95,7 @@ static void build_stellated(void) {
 }
 
 static void update_spikes(void) {
-    spike_t += g_spike_speed;
+    spike_t += BASE_SPIKE_RATE * g_spike_speed;
     for (int f = 0; f < N_FACES; f++) {
         float s = g_spike_min + (g_spike_max - g_spike_min) *
                   (1.0f + sinf(spike_t + spike_phase[f])) * 0.5f;
@@ -237,8 +238,8 @@ static void print_help(void) {
     printf("  a/z   scale    (%.0f, 2000-32000)\n", g_scale);
     printf("  j/n   spike_max (%.2f, >spike_min+0.10)\n", g_spike_max);
     printf("  k/m   spike_min (%.2f, 0.05-spike_max-0.10)\n", g_spike_min);
-    printf("  s/x   rot speed (%.2fx)\n",           g_rot_speed);
-    printf("  S/X   spike osc speed (%.4f)\n",      g_spike_speed);
+    printf("  s/x   rot speed  (%.2fx, 0.0-5.0)\n",  g_rot_speed);
+    printf("  S/X   osc speed  (%.2fx, 0.0-5.0)\n",  g_spike_speed);
     printf("  d/c   flyback steps (%d, 1-40)\n",    flyback_steps);
     printf("  r     reset defaults\n");
     printf("  h     this help\n");
@@ -277,7 +278,7 @@ int main(void) {
             g_spike_speed  = DEF_SPIKE_SPEED;
             g_rot_speed    = DEF_ROT_SPEED;
             flyback_steps  = DEF_FLYBACK;
-            printf("reset\n");
+            print_help();
         } else if (ch == '+' || ch == '=') {
             if (z_offset < 60) z_offset++;
         } else if (ch == '-') {
@@ -297,11 +298,11 @@ int main(void) {
         } else if (ch == 's') {
             if (g_rot_speed < 5.0f) g_rot_speed += 0.1f;
         } else if (ch == 'x') {
-            if (g_rot_speed > 0.1f) g_rot_speed -= 0.1f;
+            if (g_rot_speed >= 0.1f) g_rot_speed -= 0.1f;
         } else if (ch == 'S') {
-            if (g_spike_speed < 0.100f) g_spike_speed += 0.002f;
+            if (g_spike_speed < 5.0f) g_spike_speed += 0.1f;
         } else if (ch == 'X') {
-            if (g_spike_speed > 0.002f) g_spike_speed -= 0.002f;
+            if (g_spike_speed >= 0.1f) g_spike_speed -= 0.1f;
         } else if (ch == 'd') {
             if (flyback_steps < 40) flyback_steps++;
         } else if (ch == 'c') {
@@ -310,7 +311,7 @@ int main(void) {
             changed = false;
         }
         if (changed && ch != 'r') {
-            printf("z=%d  sc=%.0f  spk=%.2f/%.2f  rot=%.2fx  osc=%.4f  fb=%d\n",
+            printf("z=%d  sc=%.0f  spk=%.2f/%.2f  rot=%.2fx  osc=%.2fx  fb=%d\n",
                    z_offset, g_scale, g_spike_min, g_spike_max,
                    g_rot_speed, g_spike_speed, flyback_steps);
         }

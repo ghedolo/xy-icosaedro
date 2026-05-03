@@ -26,14 +26,16 @@ Flash: `./flash.sh tmp/build/icosaedro.uf2`
 
 ### Serial commands (USB CDC, 115200 baud)
 
+Defaults: z_offset=20, scale=20000, spike_min=0.15, spike_max=1.55, rot_speed=1.0×, osc_speed=1.0×, flyback=6
+
 | Key | Action | Range |
 |---|---|---|
 | `+` / `-` | Z blanking offset | 0–60 |
 | `a` / `z` | Scale | 2000–32000 |
 | `j` / `n` | Spike max length | > spike_min + 0.10 |
 | `k` / `m` | Spike min length | 0.05 – spike_max − 0.10 |
-| `s` / `x` | Rotation speed multiplier | 0.1×–5.0× |
-| `S` / `X` | Spike oscillation speed | 0.002–0.100 |
+| `s` / `x` | Rotation speed multiplier | 0.0×–5.0× |
+| `S` / `X` | Spike oscillation speed multiplier | 0.0×–5.0× |
 | `d` / `c` | Flyback steps | 1–40 |
 | `r` | Reset all to defaults | — |
 | `h` | Print help | — |
@@ -53,12 +55,12 @@ The numbers below are extracted from the local session transcripts
 | | |
 |---|---|
 | First message | 2026-04-29 18:37 UTC |
-| Last message | 2026-05-03 10:05 UTC |
+| Last message | 2026-05-03 13:05 UTC |
 | Calendar span | ~3 days |
 | Sessions | 4 |
-| Commits | 1 |
-| Messages | 1592 (644 user + 948 assistant) |
-| Active conversation time | ~376 min (~6.3 h) |
+| Commits | 2 |
+| Messages | 1679 (680 user + 999 assistant) |
+| Active conversation time | ~407 min (~6.8 h) |
 
 > Active time: sum of consecutive message gaps ≤ 5 min (long idle periods excluded).
 
@@ -67,7 +69,7 @@ The numbers below are extracted from the local session transcripts
 | Metric | Tokens |
 |---|---|
 | Input (non-cache) | 2 k |
-| Output | 1.1 M |
-| Cache write | 1.7 M |
-| Cache read | 69.5 M |
-| **Total** | **~72.4 M** |
+| Output | 1.2 M |
+| Cache write | 1.9 M |
+| Cache read | 71.7 M |
+| **Total** | **~74.7 M** |
