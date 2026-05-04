@@ -63,12 +63,12 @@ The numbers below are extracted from the local session transcripts
 | | |
 |---|---|
 | First message | 2026-04-29 18:37 UTC |
-| Last message | 2026-05-03 13:05 UTC |
-| Calendar span | ~3 days |
-| Sessions | 4 |
-| Commits | 2 |
-| Messages | 1679 (680 user + 999 assistant) |
-| Active conversation time | ~407 min (~6.8 h) |
+| Last message | 2026-05-04 05:36 UTC |
+| Calendar span | ~4 days |
+| Sessions | 8 |
+| Commits | 4 |
+| Messages | 1908 (773 user + 1135 assistant) |
+| Active conversation time | ~440 min (~7.3 h) |
 
 > Active time: sum of consecutive message gaps ≤ 5 min (long idle periods excluded).
 
@@ -76,8 +76,8 @@ The numbers below are extracted from the local session transcripts
 
 | Metric | Tokens |
 |---|---|
-| Input (non-cache) | 2 k |
-| Output | 1.2 M |
-| Cache write | 1.9 M |
-| Cache read | 71.7 M |
-| **Total** | **~74.7 M** |
+| Input (non-cache) | 4 k |
+| Output | 1.3 M |
+| Cache write | 2.2 M |
+| Cache read | 75.2 M |
+| **Total** | **~78.7 M** |
