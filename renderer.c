@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#define DRAW_STEPS     2    // budget: 32 + 41*(6+20) + 60*2 = 32+1066+120 = 1218 < 1536
+#define DRAW_STEPS     2    // budget: 32 + 41*(7+21) + 60*3 = 32+1148+180 = 1360 < 1536
 
 #define Z_ON   0x80000000u
 #define Z_OFF  0x00000000u
@@ -21,7 +21,7 @@ static int write_segment(frame_t *f, int pos,
                           int32_t x1, int32_t y1,
                           int steps, bool beam_on) {
     uint32_t zval = beam_on ? Z_ON : Z_OFF;
-    for (int i = 0; i < steps && pos < SAMPLES_PER_FRAME; i++, pos++) {
+    for (int i = 0; i <= steps && pos < SAMPLES_PER_FRAME; i++, pos++) {
         int32_t x = x0 + (x1 - x0) * i / steps;
         int32_t y = y0 + (y1 - y0) * i / steps;
         f->audio[pos] = pack_xy(x, y);

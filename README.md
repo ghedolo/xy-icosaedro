@@ -22,7 +22,16 @@ cmake ../.. -DCMAKE_TOOLCHAIN_FILE=../../toolchain-xpack.cmake
 make -j$(nproc)
 ```
 
-Flash: `./flash.sh tmp/build/icosaedro.uf2`
+Flash: use the `/flash-ico` slash command, or run `./flash.sh tmp/build/icosaedro.uf2`
+
+## Slash commands
+
+Two slash commands are available in this project:
+
+| Command | Effect |
+|---|---|
+| `/flash-ico` | Build and flash the firmware to the RP2040 (no button press required) |
+| `/commit-ico` | Regenerate preview, update README with fresh dev stats, commit and push |
 
 ## Serial commands (USB CDC, 115200 baud)
 
@@ -40,7 +49,7 @@ Flash: `./flash.sh tmp/build/icosaedro.uf2`
 | `r` | Reset all to defaults |
 | `h` | Print help |
 
-Defaults: `z_offset=20`, `scale=32767`, `spike_min=0.15`, `spike_max=1.55`, `rot_speed=1.0×`, `spike_speed=1.0×`, `flyback=6`.
+Defaults: `z_offset=20`, `scale=32000`, `spike_min=1.0`, `spike_max=1.0`, `rot_speed=1.0×`, `spike_speed=1.0×`, `flyback=10`.
 
 ## License and Credits
 
@@ -65,12 +74,12 @@ The numbers below are extracted from the local session transcripts
 | | |
 |---|---|
 | First message | 2026-04-29 18:37 UTC |
-| Last message | 2026-05-06 06:42 UTC |
+| Last message | 2026-05-06 07:05 UTC |
 | Calendar span | ~6 days |
 | Sessions | 9 |
-| Commits | 5 |
-| Messages | 2086 (840 user + 1246 assistant) |
-| Active conversation time | ~474 min (~7.9 h) |
+| Commits | 6 |
+| Messages | 2186 (883 user + 1303 assistant) |
+| Active conversation time | ~497 min (~8.3 h) |
 
 > Active time: sum of consecutive message gaps ≤ 5 min (long idle periods excluded).
 
@@ -81,5 +90,5 @@ The numbers below are extracted from the local session transcripts
 | Input (non-cache) | 4 k |
 | Output | 1.5 M |
 | Cache write | 2.5 M |
-| Cache read | 80.3 M |
-| **Total** | **~84.3 M** |
+| Cache read | 83.1 M |
+| **Total** | **~87.1 M** |

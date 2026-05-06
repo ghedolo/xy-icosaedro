@@ -30,13 +30,13 @@
 #define N_FACES 20
 #define N_VERTS (N_BASE + N_FACES)   // 32: 12 base + 20 punte
 #define N_EDGES (N_FACES * 3)         // 60 spigoli (3 per punta)
-#define DEF_SCALE       32767.0f
-#define DEF_SPIKE_MAX   1.55f
-#define DEF_SPIKE_MIN   0.15f
+#define DEF_SCALE       32000.0f
+#define DEF_SPIKE_MAX   1.0f
+#define DEF_SPIKE_MIN   1.0f
 #define BASE_SPIKE_RATE 0.018f   // rate base (rad/frame) a moltiplicatore 1.0×
 #define DEF_SPIKE_SPEED 1.0f     // moltiplicatore default
 #define DEF_ROT_SPEED   1.0f
-#define DEF_FLYBACK     6
+#define DEF_FLYBACK     10
 #define DEF_Z_OFFSET    20
 
 static float g_scale       = DEF_SCALE;
@@ -236,8 +236,8 @@ static void print_help(void) {
     printf("icosaedro stellato — ghedo 05/2026\n");
     printf("  +/-   z_offset (%d, 0-60)\n",        z_offset);
     printf("  a/z   scale    (%.0f, 2000-32767)\n", g_scale);
-    printf("  j/n   spike_max (%.2f, >spike_min+0.10)\n", g_spike_max);
-    printf("  k/m   spike_min (%.2f, 0.05-spike_max-0.10)\n", g_spike_min);
+    printf("  j/n   spike_max (%.2f, >=spike_min, max 2.50)\n", g_spike_max);
+    printf("  k/m   spike_min (%.2f, 0.05-spike_max)\n", g_spike_min);
     printf("  s/x   rot speed  (%.2fx, 0.0-5.0)\n",  g_rot_speed);
     printf("  S/X   osc speed  (%.2fx, 0.0-5.0)\n",  g_spike_speed);
     printf("  d/c   flyback steps (%d, 1-40)\n",    flyback_steps);
@@ -290,9 +290,9 @@ int main(void) {
         } else if (ch == 'j') {
             if (g_spike_max < 2.50f) g_spike_max += 0.05f;
         } else if (ch == 'n') {
-            if (g_spike_max > g_spike_min + 0.10f) g_spike_max -= 0.05f;
+            if (g_spike_max > g_spike_min) g_spike_max -= 0.05f;
         } else if (ch == 'k') {
-            if (g_spike_min < g_spike_max - 0.10f) g_spike_min += 0.05f;
+            if (g_spike_min < g_spike_max) g_spike_min += 0.05f;
         } else if (ch == 'm') {
             if (g_spike_min > 0.05f) g_spike_min -= 0.05f;
         } else if (ch == 's') {
