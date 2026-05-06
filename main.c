@@ -30,7 +30,7 @@
 #define N_FACES 20
 #define N_VERTS (N_BASE + N_FACES)   // 32: 12 base + 20 punte
 #define N_EDGES (N_FACES * 3)         // 60 spigoli (3 per punta)
-#define DEF_SCALE       20000.0f
+#define DEF_SCALE       32767.0f
 #define DEF_SPIKE_MAX   1.55f
 #define DEF_SPIKE_MIN   0.15f
 #define BASE_SPIKE_RATE 0.018f   // rate base (rad/frame) a moltiplicatore 1.0×
@@ -235,7 +235,7 @@ static void dma_init(void) {
 static void print_help(void) {
     printf("icosaedro stellato — ghedo 05/2026\n");
     printf("  +/-   z_offset (%d, 0-60)\n",        z_offset);
-    printf("  a/z   scale    (%.0f, 2000-32000)\n", g_scale);
+    printf("  a/z   scale    (%.0f, 2000-32767)\n", g_scale);
     printf("  j/n   spike_max (%.2f, >spike_min+0.10)\n", g_spike_max);
     printf("  k/m   spike_min (%.2f, 0.05-spike_max-0.10)\n", g_spike_min);
     printf("  s/x   rot speed  (%.2fx, 0.0-5.0)\n",  g_rot_speed);
@@ -284,7 +284,7 @@ int main(void) {
         } else if (ch == '-') {
             if (z_offset > 0)  z_offset--;
         } else if (ch == 'a') {
-            if (g_scale < 32000.0f) g_scale += 500.0f;
+            if (g_scale < 32767.0f) g_scale += 500.0f;
         } else if (ch == 'z') {
             if (g_scale > 2000.0f)  g_scale -= 500.0f;
         } else if (ch == 'j') {

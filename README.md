@@ -1,8 +1,8 @@
-### xy-icosaedro
+# xy-icosaedro
 
 RP2040 firmware that renders a stellated icosahedron on an analog oscilloscope used as an XY vector display. The RP2040 streams stereo audio via a PIO-driven I2S DAC at 96 kHz — left/right channels drive the X and Y deflection inputs. A third digital output (GP5) controls beam blanking during flyback. The icosahedron has 12 base vertices, 20 animated spikes (one per face, oscillating in and out with distributed phases), and 60 edges total. All three rotation axes advance at golden-ratio-derived speeds to produce a non-repeating trajectory.
 
-### Hardware wiring
+## Hardware wiring
 
 | RP2040 pin | Signal | Destination |
 |---|---|---|
@@ -11,36 +11,38 @@ RP2040 firmware that renders a stellated icosahedron on an analog oscilloscope u
 | GP4 | I2S DIN | DAC DIN |
 | GP5 | Z blanking | Oscilloscope Z input |
 
-DAC left output → oscilloscope X input
+DAC left output → oscilloscope X input  
 DAC right output → oscilloscope Y input
 
-### Build
+## Build
 
 ```
 mkdir -p tmp/build && cd tmp/build
-cmake ../.. -DPICO_TOOLCHAIN_PATH=/Users/ghedo/script/AllClaude/rp2040/xpack-arm-none-eabi-gcc-15.2.1-1.1/bin
+cmake ../.. -DCMAKE_TOOLCHAIN_FILE=../../toolchain-xpack.cmake
 make -j$(nproc)
 ```
 
 Flash: `./flash.sh tmp/build/icosaedro.uf2`
 
-### Serial commands (USB CDC, 115200 baud)
+## Serial commands (USB CDC, 115200 baud)
 
-Defaults: z_offset=20, scale=20000, spike_min=0.15, spike_max=1.55, rot_speed=1.0×, osc_speed=1.0×, flyback=6
+| Key | Effect |
+|---|---|
+| `+` / `=` | Increase `z_offset` (beam blanking guard, 0–60) |
+| `-` | Decrease `z_offset` |
+| `a` | Increase scale (+500, max 32767) |
+| `z` | Decrease scale (−500, min 2000) |
+| `j` / `n` | `spike_max` ±0.05 (max 2.50) |
+| `k` / `m` | `spike_min` ±0.05 (min 0.05) |
+| `s` / `x` | Rotation speed ±0.1× (0.1–5.0×) |
+| `S` / `X` | Spike oscillation speed ±0.1× (0.1–5.0×) |
+| `d` / `c` | Flyback steps ±1 (1–40) |
+| `r` | Reset all to defaults |
+| `h` | Print help |
 
-| Key | Action | Range |
-|---|---|---|
-| `+` / `-` | Z blanking offset | 0–60 |
-| `a` / `z` | Scale | 2000–32000 |
-| `j` / `n` | Spike max length | > spike_min + 0.10 |
-| `k` / `m` | Spike min length | 0.05 – spike_max − 0.10 |
-| `s` / `x` | Rotation speed multiplier | 0.0×–5.0× |
-| `S` / `X` | Spike oscillation speed multiplier | 0.0×–5.0× |
-| `d` / `c` | Flyback steps | 1–40 |
-| `r` | Reset all to defaults | — |
-| `h` | Print help | — |
+Defaults: `z_offset=20`, `scale=32767`, `spike_min=0.15`, `spike_max=1.55`, `rot_speed=1.0×`, `spike_speed=1.0×`, `flyback=6`.
 
-### License and Credits
+## License and Credits
 
 **License:** GPL-3.0-or-later
 
@@ -48,7 +50,7 @@ Defaults: z_offset=20, scale=20000, spike_min=0.15, spike_max=1.55, rot_speed=1.
 
 **Development Tool:** The project was constructed using Claude Code by Anthropic.
 
-### Preview
+## Preview
 
 ![Stellated icosahedron preview](docs/preview.png)
 
@@ -63,12 +65,12 @@ The numbers below are extracted from the local session transcripts
 | | |
 |---|---|
 | First message | 2026-04-29 18:37 UTC |
-| Last message | 2026-05-04 05:36 UTC |
-| Calendar span | ~4 days |
-| Sessions | 8 |
-| Commits | 4 |
-| Messages | 1908 (773 user + 1135 assistant) |
-| Active conversation time | ~440 min (~7.3 h) |
+| Last message | 2026-05-06 06:42 UTC |
+| Calendar span | ~6 days |
+| Sessions | 9 |
+| Commits | 5 |
+| Messages | 2086 (840 user + 1246 assistant) |
+| Active conversation time | ~474 min (~7.9 h) |
 
 > Active time: sum of consecutive message gaps ≤ 5 min (long idle periods excluded).
 
@@ -77,7 +79,7 @@ The numbers below are extracted from the local session transcripts
 | Metric | Tokens |
 |---|---|
 | Input (non-cache) | 4 k |
-| Output | 1.3 M |
-| Cache write | 2.2 M |
-| Cache read | 75.2 M |
-| **Total** | **~78.7 M** |
+| Output | 1.5 M |
+| Cache write | 2.5 M |
+| Cache read | 80.3 M |
+| **Total** | **~84.3 M** |
