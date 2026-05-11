@@ -18,7 +18,7 @@ DAC right output → oscilloscope Y input
 
 GP5 outputs 3.3 V; most oscilloscope Z inputs expect 5 V. A simple NPN transistor circuit performs the level shift:
 
-![Z-axis level shifter schematic](docs/Z_axis_leveShifter.png)
+<img src="docs/Z_axis_leveShifter.png" width="350"/>
 
 **Components:** 2N2222 (or equivalent NPN), two 1 kΩ resistors, +5 V supply.  
 GP5 drives the base through a 1 kΩ series resistor; the collector is pulled to +5 V via another 1 kΩ and drives the Z input directly. The transistor inverts the signal — firmware accounts for this polarity.
